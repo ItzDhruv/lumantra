@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 
-//  Type-safe user credentials object
 const users: Record<string, string> = {
   'deepalimurale': 'deepalimurale@lumantra',
   'ojaswi': 'ojaswi@lumantra',
@@ -21,7 +20,6 @@ export default function SignIn({ onLogin }: SignInProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    //  Check username and password match
     if (users[username] && users[username] === password) {
       localStorage.setItem('loggedInUser', username);
       onLogin(username);
@@ -31,36 +29,42 @@ export default function SignIn({ onLogin }: SignInProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80 space-y-4">
-        <h2 className="text-2xl font-semibold text-center">Sign In</h2>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-blue-200 w-full max-w-md p-8 space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-blue-600">Lumantra</h1>
+          <p className="mt-1 text-gray-600 text-sm">Welcome back! Please sign in to continue.</p>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
-        >
-          Login
-        </button>
-      </form>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 rounded-lg transition-all duration-300"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

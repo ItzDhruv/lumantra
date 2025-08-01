@@ -122,7 +122,7 @@ class WorkflowAPI {
   // Add a comment to a workflow
   async addComment(workflowId: string, comment: { author: string; text: string }): Promise<Workflow> {
     try {
-      const response = await this.request<Workflow>(`/workflow/${workflowId}/comments`, {
+      const response = await this.request<Workflow>(`/workflow/${workflowId}/comment`, {
         method: 'POST',
         body: JSON.stringify(comment),
       });
@@ -136,7 +136,7 @@ class WorkflowAPI {
   // Delete a comment from a workflow
   async deleteComment(workflowId: string, commentId: string): Promise<Workflow> {
     try {
-      const response = await this.request<Workflow>(`/workflow/${workflowId}/comments/${commentId}`, {
+      const response = await this.request<Workflow>(`/workflow/${workflowId}/comment/${commentId}`, {
         method: 'DELETE',
       });
       return response;
