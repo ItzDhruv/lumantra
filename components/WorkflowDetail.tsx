@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-interface Comment {
-  id: string;
-  author: string;
-  content: string;
-  timestamp: string;
-}
+import { Comment } from '../app/api';
 
 interface Task {
   id: string;
@@ -27,9 +21,10 @@ interface WorkflowDetailProps {
   onBack: () => void;
   onAddComment: (taskId: string, comment: string) => void;
   onUpdateStatus: (taskId: string, status: Task['status']) => void;
+  onDelete?: (taskId: string) => void;
 }
 
-export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateStatus }: WorkflowDetailProps) {
+export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateStatus, onDelete }: WorkflowDetailProps) {
   const [newComment, setNewComment] = useState('');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
@@ -38,6 +33,12 @@ export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateSta
     if (newComment.trim()) {
       onAddComment(task.id, newComment.trim());
       setNewComment('');
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(task.id);
     }
   };
 
@@ -81,7 +82,7 @@ export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateSta
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer whitespace-nowrap"
@@ -89,6 +90,16 @@ export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateSta
           <i className="ri-arrow-left-line w-5 h-5 flex items-center justify-center"></i>
           Back to Workflows
         </button>
+        
+        {onDelete && (
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 cursor-pointer"
+          >
+            <i className="ri-delete-bin-line w-5 h-5 flex items-center justify-center"></i>
+            Delete Workflow
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -193,7 +204,7 @@ export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateSta
                 </div>
               ) : (
                 task.comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-4">
+                  <div key={comment._id || comment.author + comment.text} className="flex gap-4">
                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-user-line w-5 h-5 flex items-center justify-center text-gray-600"></i>
                     </div>
@@ -201,9 +212,9 @@ export default function WorkflowDetail({ task, onBack, onAddComment, onUpdateSta
                       <div className="bg-gray-50 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-medium text-gray-900">{comment.author}</span>
-                          <span className="text-sm text-gray-500">{formatTimestamp(comment.timestamp)}</span>
+                          <span className="text-sm text-gray-500">{formatTimestamp(comment.createdAt || new Date().toISOString())}</span>
                         </div>
-                        <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+                        <p className="text-gray-700 leading-relaxed">{comment.text}</p>
                       </div>
                     </div>
                   </div>

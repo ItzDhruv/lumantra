@@ -26,22 +26,29 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
 
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const teamMembers = [
-    'Sarah Johnson',
-    'David Chen',
-    'Alex Rodriguez',
-    'Emma Wilson',
-    'Michael Brown',
-    'Lisa Anderson'
+    'Deepali murale',
+    'Ojaswi',
+    'Dhruv Dobariya'
   ];
 
   const priorities = ['High', 'Medium', 'Low'];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.title && formData.dueDate && formData.assignedTo) {
-      onSubmit(formData);
+      setIsSubmitting(true);
+      try {
+        await onSubmit(formData);
+        onClose();
+      } catch (error) {
+        console.error('Error creating workflow:', error);
+        // Error handling is done in the parent component
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -58,6 +65,7 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              disabled={isSubmitting}
             >
               <i className="ri-close-line w-6 h-6 flex items-center justify-center"></i>
             </button>
@@ -75,6 +83,7 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter task title"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -88,6 +97,7 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="Describe the task details..."
+                disabled={isSubmitting}
               />
             </div>
 
@@ -101,6 +111,7 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
                 onChange={(e) => handleInputChange('dueDate', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -112,13 +123,14 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
                 <button
                   type="button"
                   onClick={() => setShowAssigneeDropdown(!showAssigneeDropdown)}
-                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left cursor-pointer"
+                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left cursor-pointer disabled:opacity-50"
+                  disabled={isSubmitting}
                 >
                   {formData.assignedTo || 'Select team member'}
                   <i className="ri-arrow-down-s-line absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center"></i>
                 </button>
                 
-                {showAssigneeDropdown && (
+                {showAssigneeDropdown && !isSubmitting && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
                     {teamMembers.map((member) => (
                       <button
@@ -146,13 +158,14 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
                 <button
                   type="button"
                   onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
-                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left cursor-pointer"
+                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left cursor-pointer disabled:opacity-50"
+                  disabled={isSubmitting}
                 >
                   {formData.priority}
                   <i className="ri-arrow-down-s-line absolute right-2 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center"></i>
                 </button>
                 
-                {showPriorityDropdown && (
+                {showPriorityDropdown && !isSubmitting && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
                     {priorities.map((priority) => (
                       <button
@@ -176,15 +189,17 @@ export default function CreateWorkflowModal({ onClose, onSubmit }: CreateWorkflo
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium cursor-pointer whitespace-nowrap transition-colors"
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium cursor-pointer whitespace-nowrap transition-colors disabled:opacity-50"
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium cursor-pointer whitespace-nowrap transition-colors"
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium cursor-pointer whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
               >
-                Create Workflow
+                {isSubmitting ? 'Creating...' : 'Create Workflow'}
               </button>
             </div>
           </form>

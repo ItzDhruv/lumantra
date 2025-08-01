@@ -1,5 +1,7 @@
 'use client';
 
+import { Comment } from '../app/api';
+
 interface Task {
   id: string;
   title: string;
@@ -8,7 +10,7 @@ interface Task {
   assignedTo: string;
   priority: 'High' | 'Medium' | 'Low';
   status: 'Pending' | 'In Progress' | 'Completed';
-  comments: any[];
+  comments: Comment[];
   createdAt: string;
   createdBy: string;
 }
@@ -16,9 +18,11 @@ interface Task {
 interface WorkflowListProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  loading?: boolean;
+  onDelete?: (taskId: string) => void;
 }
 
-export default function WorkflowList({ tasks, onTaskClick }: WorkflowListProps) {
+export default function WorkflowList({ tasks, onTaskClick, loading = false, onDelete }: WorkflowListProps) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'High': return 'bg-red-100 text-red-800';
@@ -56,6 +60,42 @@ export default function WorkflowList({ tasks, onTaskClick }: WorkflowListProps) 
     return `${diffDays} days remaining`;
   };
 
+  const handleDelete = (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(taskId);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-gray-900">Active Workflows</h2>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-xl shadow-sm border p-6 animate-pulse">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex gap-2">
+                  <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
+                  <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                </div>
+              </div>
+              <div className="h-6 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded mb-4"></div>
+              <div className="space-y-3">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -70,8 +110,18 @@ export default function WorkflowList({ tasks, onTaskClick }: WorkflowListProps) 
           <div
             key={task.id}
             onClick={() => onTaskClick(task)}
-            className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer p-6"
+            className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer p-6 relative group"
           >
+            {onDelete && (
+              <button
+                onClick={(e) => handleDelete(e, task.id)}
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-red-500"
+                title="Delete workflow"
+              >
+                <i className="ri-delete-bin-line w-4 h-4"></i>
+              </button>
+            )}
+            
             <div className="flex justify-between items-start mb-4">
               <div className="flex gap-2">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
@@ -123,7 +173,7 @@ export default function WorkflowList({ tasks, onTaskClick }: WorkflowListProps) 
         ))}
       </div>
 
-      {tasks.length === 0 && (
+      {tasks.length === 0 && !loading && (
         <div className="text-center py-12">
           <i className="ri-task-line w-16 h-16 flex items-center justify-center text-gray-300 mx-auto mb-4 text-6xl"></i>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No workflows yet</h3>
